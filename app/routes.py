@@ -27,3 +27,14 @@ def handle_planets():
                 "order_from_sun": p.order_from_sun,
             })
         return jsonify(planets_response)
+    
+@planets_bp.route("/<planet_id>", methods = ["GET"], strict_slashes=False)
+def handle_planet_id(planet_id):
+    planet = Planet.query.get(planet_id)
+
+    return {
+        "id":planet.id,
+        "name":planet.name,
+        "description":planet.description,
+        "order_from_sun": planet.order_from_sun 
+    }
