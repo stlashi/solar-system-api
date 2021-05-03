@@ -15,7 +15,7 @@ def handle_planets():
         db.session.add(new_planet) 
         db.session.commit()
         
-        return make_response(f"Planet {new_planet.name} successfully created", 201)
+        return make_response(f"Planet {new_planet.name} successfully created.", 201)
     elif request.method == "GET":
         planets = Planet.query.all()
         planets_response = []
@@ -27,14 +27,39 @@ def handle_planets():
                 "order_from_sun": p.order_from_sun,
             })
         return jsonify(planets_response)
-    
-@planets_bp.route("/<planet_id>", methods = ["GET"], strict_slashes=False)
+
+
+@planets_bp.route("/<planet_id>", methods = ["GET","PUT","DELETE"], strict_slashes=False)
 def handle_planet_id(planet_id):
     planet = Planet.query.get(planet_id)
+    
+    if request.method == "GET":
+        if planet is None:
+            return make_response(f"Planet does not exist.", 404)
 
-    return {
-        "id":planet.id,
-        "name":planet.name,
-        "description":planet.description,
-        "order_from_sun": planet.order_from_sun 
-    }
+        return {
+            "id":planet.id,
+            "name":planet.name,
+            "description":planet.description,
+            "order_from_sun": planet.order_from_sun 
+            }
+ 
+    elif request.method == "PUT":
+        if planet is None: 
+            return make_response(f"Planet does not exist so it cannot be updated.", 404)
+        
+        request_body = request.get_json()
+        planet.name = request_body["name"],
+        planet.description = request_body["description"],
+        planet.order_from_sun = request_body["order_from_sun"]       
+        db.session.commit()
+        return make_response(f"Planet {planet.name} successfully updated.", 201)
+    
+    elif request.method == "DELETE":
+        if planet is None:
+            return make_response(f"Planet does not exist so it cannot be deleted.", 404)    
+
+        db.session.delete(planet)
+        db.session.commit()
+        return make_response(f"Planet {planet.name} successfully deleted.", 201)
+        

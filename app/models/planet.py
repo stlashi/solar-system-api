@@ -5,3 +5,4 @@ class Planet(db.Model):
     name = db.Column(db.String)
     description = db.Column(db.String)
     order_from_sun = db.Column(db.String)
+
